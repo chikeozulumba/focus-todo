@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
+@font-face {
+    font-family: "Gordita";
+    src: url("/fonts/GorditaBold.otf"), url("/fonts/GorditaLight.otf"), url("/fonts/GorditaMedium.otf"), url("/fonts/GorditaRegular.otf");
+}
+
+@font-face {
+    font-family: "Quicksand";
+    src: url("/fonts/Quicksand-Bold.ttf"), url("/fonts/Quicksand-Light.ttf"), url("/fonts/Quicksand-Medium.ttf"), url("/fonts/Quicksand-Regular.ttf"), url("/fonts/Quicksand-SemiBold.ttf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Quicksand';
+}
