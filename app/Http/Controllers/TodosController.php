@@ -44,37 +44,48 @@ class TodosController extends Controller
      */
     public function store(CreateTodo $request)
     {
-        $payload = $request->validated();
-        $payload['user_id'] = auth()->user()->id;
-        $todo = Todo::create($payload);
-        foreach ($payload['tasks'] ?? [] as $key => $task) {
-            $task['todo_id'] = $todo->id;
-            $task['user_id'] = $payload['user_id'];
-            Task::create($task);
-        }
-        foreach ($payload['labels'] ?? [] as $key => $label) {
-            $label = Label::query()->firstOrCreate(
-                [
-                    'display_title' => ucfirst($label),
-                    'user_id' => $payload['user_id'],
-                ],
-                [
-                    'display_title' => ucfirst($label),
-                    'title' => '@' . $label,
-                    'user_id' => $payload['user_id'],
-                ]
-            );
+        try {
+            $payload = $request->validated();
+            $payload['user_id'] = auth()->user()->id;
+            $todo = Todo::create($payload);
+            foreach ($payload['tasks'] ?? [] as $key => $task) {
+                $task['todo_id'] = $todo->id;
+                $task['user_id'] = $payload['user_id'];
+                Task::create($task);
+            }
+            foreach ($payload['labels'] ?? [] as $key => $label) {
+                $label = Label::query()->firstOrCreate(
+                    [
+                        'display_title' => ucfirst($label),
+                        'user_id' => $payload['user_id'],
+                    ],
+                    [
+                        'display_title' => ucfirst($label),
+                        'title' => '@' . $label,
+                        'user_id' => $payload['user_id'],
+                    ]
+                );
 
-            $label->todos()->sync($todo->id);
+                $label->todos()->sync($todo->id);
+            }
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 201,
+                        'message' => 'Todo resource successfully created.',
+                        'data' => new TodoResource($todo, [ "relations" => [ 'tasks', 'labels'] ]),
+                    ], 201,
+                );
+        } catch (\Throwable $th) {
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 500,
+                        'message' => 'Todo resource failed to create.',
+                        'error' => "$th",
+                    ], 500,
+                );
         }
-        return response()
-            ->json(
-                [
-                    'statusCode' => 201,
-                    'message' => 'Todo resource successfully created.',
-                    'data' => new TodoResource($todo, [ "relations" => [ 'tasks', 'labels'] ]),
-                ], 201,
-            );
     }
 
     /**
