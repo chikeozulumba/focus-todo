@@ -54,12 +54,12 @@ Route::group(
             function () {
                 Route::get('/', [\App\Http\Controllers\LabelsController::class, 'index']);
                 Route::post('/', [\App\Http\Controllers\LabelsController::class, 'store']);
-                Route::get('/{label}', [\App\Http\Controllers\LabelsController::class, 'show'])->where('priority', '[0-9]+');
-                Route::put('/{label}', [\App\Http\Controllers\LabelsController::class, 'update'])->where('priority', '[0-9]+');
-                Route::patch('/{label}/todo/{todo}', [\App\Http\Controllers\LabelsController::class, 'assignTodo'])->where('priority', '[0-9]+');
-                Route::patch('/{label}/todos', [\App\Http\Controllers\LabelsController::class, 'assignTodos'])->where('priority', '[0-9]+');
-                Route::delete('/{label}/todo/{todo}', [\App\Http\Controllers\LabelsController::class, 'unAssignTodo'])->where('priority', '[0-9]+');
-                Route::delete('/{label}', [\App\Http\Controllers\LabelsController::class, 'destroyLabel'])->where('priority', '[0-9]+');
+                Route::get('/{label}', [\App\Http\Controllers\LabelsController::class, 'show'])->where('label', '[0-9]+');
+                Route::put('/{label}', [\App\Http\Controllers\LabelsController::class, 'update'])->where('label', '[0-9]+');
+                Route::patch('/{label}/todo/{todo}', [\App\Http\Controllers\LabelsController::class, 'assignTodo'])->where('label', '[0-9]+');
+                Route::patch('/{label}/todos', [\App\Http\Controllers\LabelsController::class, 'assignTodos'])->where('label', '[0-9]+');
+                Route::delete('/{label}/todo/{todo}', [\App\Http\Controllers\LabelsController::class, 'unAssignTodo'])->where('label', '[0-9]+');
+                Route::delete('/{label}', [\App\Http\Controllers\LabelsController::class, 'destroyLabel'])->where('label', '[0-9]+');
             }
         );
     }
