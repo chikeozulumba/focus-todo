@@ -48,5 +48,19 @@ Route::group(
                 Route::post('/{task}/todo', [\App\Http\Controllers\TasksController::class, 'convertToTodo']);
             }
         );
+
+        Route::group(
+            ['prefix' => 'labels'],
+            function () {
+                Route::get('/', [\App\Http\Controllers\LabelsController::class, 'index']);
+                Route::post('/', [\App\Http\Controllers\LabelsController::class, 'store']);
+                Route::get('/{label}', [\App\Http\Controllers\LabelsController::class, 'show']);
+                Route::put('/{label}', [\App\Http\Controllers\LabelsController::class, 'update']);
+                Route::patch('/{label}/todo/{todo}', [\App\Http\Controllers\LabelsController::class, 'assignTodo']);
+                Route::patch('/{label}/todos', [\App\Http\Controllers\LabelsController::class, 'assignTodos']);
+                Route::delete('/{label}/todo/{todo}', [\App\Http\Controllers\LabelsController::class, 'unAssignTodo']);
+                Route::delete('/{label}', [\App\Http\Controllers\LabelsController::class, 'destroyLabel']);
+            }
+        );
     }
 );

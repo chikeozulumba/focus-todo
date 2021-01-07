@@ -39,4 +39,13 @@ class Todo extends Model
     {
         return $this->hasMany(\App\Models\Task::class, 'todo_id');
     }
+
+    /**
+     * Each todo can have many labels.
+     *
+     */
+    public function labels()
+    {
+        return $this->belongsToMany(\App\Models\Label::class, 'todos_labels');
+    }
 }

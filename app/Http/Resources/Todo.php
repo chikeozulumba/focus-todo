@@ -15,7 +15,7 @@ class Todo extends JsonResource
      * @param  mixed $resource
      * @return void
      */
-    public function __construct(TodoModel $resource, array $opts = [ "relations" => [ 'tasks'] ])
+    public function __construct(TodoModel $resource, $opts = [ "relations" => [ 'tasks'] ])
     {
         $this->resource = $resource;
         $this->opts = $opts;
@@ -31,7 +31,12 @@ class Todo extends JsonResource
     public function toArray($request): array
     {
         $conditionals = [];
-        if (in_array('tasks', $this->opts['relations'] ?? [])) $conditionals['tasks'] = Task::collection($this->tasks);
+        if (in_array('tasks', $this->opts['relations'] ?? [])) {
+            $conditionals['tasks'] = Task::collection($this->tasks);
+        }
+        if (in_array('labels', $this->opts['relations'] ?? [])) {
+            $conditionals['labels'] = Label::collection($this->labels);
+        }
 
         return
             array_merge(
