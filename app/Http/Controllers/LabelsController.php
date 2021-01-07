@@ -39,28 +39,39 @@ class LabelsController extends Controller
      */
     public function store(CreateLabel $request)
     {
-        $user = auth()->user();
-        $payload = $request->validated();
-        $payload['user_id'] = $user->id;
-        $payload['display_title'] = ucfirst($payload['title']);
-        $payload['title'] = '@' . Str::slug($payload['title'], '_');
-        $label = Label::updateOrCreate([ 'title' => $payload['title'], 'user_id' => $user->id ], $payload);
+        try {
+            $user = auth()->user();
+            $payload = $request->validated();
+            $payload['user_id'] = $user->id;
+            $payload['display_title'] = ucfirst($payload['title']);
+            $payload['title'] = '@' . Str::slug($payload['title'], '_');
+            $label = Label::updateOrCreate([ 'title' => $payload['title'], 'user_id' => $user->id ], $payload);
 
-        if ($payload['todos'] ?? null) {
-            foreach ($payload['todos'] as $hash) {
-                $todo = Todo::firstWhere('hash', $hash);
-                $todo->labels()->sync($label->id);
+            if ($payload['todos'] ?? null) {
+                foreach ($payload['todos'] as $hash) {
+                    $todo = Todo::firstWhere('hash', $hash);
+                    $todo->labels()->sync($label->id);
+                }
             }
-        }
 
-        return response()
-            ->json(
-                [
-                    'statusCode' => 201,
-                    'message' => 'Label resource created successfully.',
-                    'data' => new LabelWithoutTodosResource($label),
-                ], 201,
-            );
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 201,
+                        'message' => 'Label resource created successfully.',
+                        'data' => new LabelWithoutTodosResource($label),
+                    ], 201,
+                );
+        } catch (\Throwable $th) {
+            return response()
+                    ->json(
+                        [
+                            'statusCode' => 500,
+                            'message' => 'Label resource failed to update.',
+                            'error' => "$th",
+                        ], 500,
+                    );
+        }
     }
 
     /**
@@ -90,32 +101,43 @@ class LabelsController extends Controller
      */
     public function update(UpdateLabel $request, Label $label)
     {
-        $user = auth()->user();
-        $payload = $request->validated();
-        $payload['user_id'] = $user->id;
+        try {
+            $user = auth()->user();
+            $payload = $request->validated();
+            $payload['user_id'] = $user->id;
 
-        if ($payload['title'] ?? null) {
-            $payload['display_title'] = ucfirst($payload['title']);
-            $payload['title'] = '@' . Str::slug($payload['title'], '_');
-        }
-
-        $label->update($payload);
-
-        if ($payload['todos'] ?? null) {
-            foreach ($payload['todos'] as $hash) {
-                $todo = Todo::firstWhere('hash', $hash);
-                $todo->labels()->sync($label->id);
+            if ($payload['title'] ?? null) {
+                $payload['display_title'] = ucfirst($payload['title']);
+                $payload['title'] = '@' . Str::slug($payload['title'], '_');
             }
-        }
 
-        return response()
-            ->json(
-                [
-                    'statusCode' => 202,
-                    'message' => 'Label resource updated successfully.',
-                    'data' => new LabelWithoutTodosResource($label),
-                ], 202,
-            );
+            $label->update($payload);
+
+            if ($payload['todos'] ?? null) {
+                foreach ($payload['todos'] as $hash) {
+                    $todo = Todo::firstWhere('hash', $hash);
+                    $todo->labels()->sync($label->id);
+                }
+            }
+
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 202,
+                        'message' => 'Label resource updated successfully.',
+                        'data' => new LabelWithoutTodosResource($label),
+                    ], 202,
+                );
+        } catch (\Throwable $th) {
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 500,
+                        'message' => 'Label resource failed to update.',
+                        'error' => "$th",
+                    ], 500,
+                );
+        }
     }
 
     /**

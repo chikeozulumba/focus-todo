@@ -118,22 +118,33 @@ class TodosController extends Controller
      */
     public function update(UpdateTodo $request, Todo $todo)
     {
-        $payload = $request->validated();
-        $todo->update($payload);
-        $user = auth()->user();
-        foreach ($payload['tasks'] ?? [] as $task) {
-            $task['todo_id'] = $todo->id;
-            $task['user_id'] = $user->id;
-            Task::query()->updateOrCreate([ 'hash' => $task['id'] ?? null, 'user_id' => $task['user_id'] ], $task);
+        try {
+            $payload = $request->validated();
+            $todo->update($payload);
+            $user = auth()->user();
+            foreach ($payload['tasks'] ?? [] as $task) {
+                $task['todo_id'] = $todo->id;
+                $task['user_id'] = $user->id;
+                Task::query()->updateOrCreate([ 'hash' => $task['id'] ?? null, 'user_id' => $task['user_id'] ], $task);
+            }
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 200,
+                        'message' => 'Todo resource updated successfully.',
+                        'data' => new TodoResource($todo),
+                    ], 200,
+                );
+        } catch (\Throwable $th) {
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 500,
+                        'message' => 'Todo resource failed to update.',
+                        'error' => "$th",
+                    ], 500,
+                );
         }
-        return response()
-            ->json(
-                [
-                    'statusCode' => 200,
-                    'message' => 'Todo resource updated successfully.',
-                    'data' => new TodoResource($todo),
-                ], 200,
-            );
     }
 
     /**
@@ -189,42 +200,54 @@ class TodosController extends Controller
      */
     public function status(Request $request, Todo $todo, $status = 'completed')
     {
-        $user = auth()->user();
-        $date = new DateTime("now", new DateTimeZone('Africa/Lagos'));
-        $todo->update(
-            [ 'completed_at' => $status === 'completed' ? $date : null ],
-        );
 
-        $taskQuery = $request->tasks ?? '';
-        $tasksHashIds = explode(',', $taskQuery);
-        if ($taskQuery === 'all') {
-            Task::query()
-                ->where('todo_id', $todo->id)
-                ->update(
-                    [ 'completed_at' => $status === 'completed' ? $date : null ]
-                );
-        }
+        try {
+            $user = auth()->user();
+            $date = new DateTime("now", new DateTimeZone('Africa/Lagos'));
+            $todo->update(
+                [ 'completed_at' => $status === 'completed' ? $date : null ],
+            );
 
-        if (count($tasksHashIds) > 0) {
-            foreach ($tasksHashIds as $ids) {
+            $taskQuery = $request->tasks ?? '';
+            $tasksHashIds = explode(',', $taskQuery);
+            if ($taskQuery === 'all') {
                 Task::query()
                     ->where('todo_id', $todo->id)
-                    ->where('user_id', $user->id)
                     ->update(
                         [ 'completed_at' => $status === 'completed' ? $date : null ]
                     );
             }
-        }
 
-        return response()
-            ->json(
-                [
-                    'statusCode' => 202,
-                    'status' => true,
-                    'message' => 'Todo resource updated successfully.',
-                    'data' => new TodoResource($todo),
-                ], 202,
-            );
+            if (count($tasksHashIds) > 0) {
+                foreach ($tasksHashIds as $ids) {
+                    Task::query()
+                        ->where('todo_id', $todo->id)
+                        ->where('user_id', $user->id)
+                        ->update(
+                            [ 'completed_at' => $status === 'completed' ? $date : null ]
+                        );
+                }
+            }
+
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 202,
+                        'status' => true,
+                        'message' => 'Todo resource updated successfully.',
+                        'data' => new TodoResource($todo),
+                    ], 202,
+                );
+        } catch (\Throwable $th) {
+            return response()
+                ->json(
+                    [
+                        'statusCode' => 500,
+                        'message' => 'Todo resource failed to update.',
+                        'error' => "$th",
+                    ], 500,
+                );
+        }
     }
 
     /**
