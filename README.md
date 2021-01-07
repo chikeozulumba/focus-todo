@@ -38,4 +38,4 @@ Run development server
 ```
 php artisan serve
 ```
-Open [http://localhost:3000](http://localhost:3000) in postman
+Open [http://localhost:8000](http://localhost:8000) in postman
