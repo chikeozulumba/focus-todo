@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateTodo extends FormRequest
+class CreateLabel extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,14 +25,20 @@ class CreateTodo extends FormRequest
     {
         return [
             'title' => 'required|string',
-            'description' => 'nullable|string',
-            'priority' => 'sometimes|numeric|min:1',
-            'schedule' => 'required|date',
-            'labels' => 'nullable|array|min:1',
-            'labels.*' => 'required|string',
-            'tasks' => 'nullable|array|min:1',
-            'tasks.*.description' => 'required|string',
-            'tasks.*.schedule' => 'required|date',
+            'todos' => 'sometimes|array|min:1',
+            'todos.*' => 'required|exists:todos,hash'
+        ];
+    }
+
+    /**
+     * Custom validation messages.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'todos.*.exists' => 'Todo resource not available.'
         ];
     }
 }

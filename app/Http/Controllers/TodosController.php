@@ -6,10 +6,12 @@ use App\Http\Requests\CreateTodo;
 use App\Http\Requests\UpdateTodo;
 use App\Models\Todo;
 use App\Http\Resources\Todo as TodoResource;
+use App\Models\Label;
 use App\Models\Task;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TodosController extends Controller
 {
@@ -50,12 +52,27 @@ class TodosController extends Controller
             $task['user_id'] = $payload['user_id'];
             Task::create($task);
         }
+        foreach ($payload['labels'] ?? [] as $key => $label) {
+            $label = Label::query()->firstOrCreate(
+                [
+                    'display_title' => ucfirst($label),
+                    'user_id' => $payload['user_id'],
+                ],
+                [
+                    'display_title' => ucfirst($label),
+                    'title' => '@' . $label,
+                    'user_id' => $payload['user_id'],
+                ]
+            );
+
+            $label->todos()->sync($todo->id);
+        }
         return response()
             ->json(
                 [
                     'statusCode' => 201,
                     'message' => 'Todo resource successfully created.',
-                    'data' => new TodoResource($todo),
+                    'data' => new TodoResource($todo, [ "relations" => [ 'tasks', 'labels'] ]),
                 ], 201,
             );
     }
@@ -69,6 +86,7 @@ class TodosController extends Controller
      */
     public function show(Todo $todo)
     {
+        return $todo->load('labels');
         return response()
             ->json(
                 [

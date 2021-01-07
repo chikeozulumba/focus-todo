@@ -66,6 +66,15 @@ class RouteServiceProvider extends ServiceProvider
                             ->firstOrFail();
                     }
                 );
+
+                Route::bind(
+                    'label',
+                    function ($id) {
+                        return \App\Models\Label::where('id', $id)
+                            ->where('user_id', Auth::user()->id)
+                            ->firstOrFail();
+                    }
+                );
             }
         );
     }
