@@ -6,7 +6,7 @@
 - Supports creation sub-tasks, task-todo conversion, labels.
 - Flexible API
 
-## Requirements
+### Requirements
 
 - PHP 8.0+
 - Postgres v11+
@@ -17,6 +17,7 @@
 - Documentation [https://documenter.getpostman.com/view/3746647/TVzNJf29](https://documenter.getpostman.com/view/3746647/TVzNJf29)
 
 ### Installation
+
 Clone repo
 ```
 git clone https://github.com/chikeozulumba/focus-todo
