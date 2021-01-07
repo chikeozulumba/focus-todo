@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Task;
+use App\Models\Todo;
+use App\Observers\TaskObserver;
+use App\Observers\TodoObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Todo::observe(TodoObserver::class);
+        Task::observe(TaskObserver::class);
     }
 }

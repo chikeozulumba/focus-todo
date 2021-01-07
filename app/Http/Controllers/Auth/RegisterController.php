@@ -43,7 +43,8 @@ class RegisterController extends Controller
         return response()->json(
             [
                 "status" => true,
-                "statusCode" => 201
+                "statusCode" => 201,
+                'message' => 'Account created successfully.'
             ],
             201,
         );

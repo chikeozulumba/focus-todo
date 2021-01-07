@@ -12,11 +12,31 @@ class Todo extends Model
     protected $fillable = [
         'title',
         'description',
-        'time',
+        'schedule',
         'priority',
-        'is_completed',
+        'completed_at',
         'archived',
-        'parent_id',
         'hash',
+        'user_id',
     ];
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'hash';
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function tasks()
+    {
+        return $this->hasMany(\App\Models\Task::class, 'todo_id');
+    }
 }

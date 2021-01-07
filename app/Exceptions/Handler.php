@@ -2,7 +2,13 @@
 
 namespace App\Exceptions;
 
+use Dotenv\Exception\ValidationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Routing\Router;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -38,5 +44,35 @@ class Handler extends ExceptionHandler
                 //
             }
         );
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param \Illuminate\Http\Request  $request
+     * @param \Throwable  $e
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
+     */
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof ModelNotFoundException && $request->wantsJson()) {
+            $model = $e->getModel() ?? '';
+            $getModel = explode('\\', $model);
+            $modelName = $getModel[count($getModel) - 1];
+            return response()
+                ->json(
+                    [
+                        'message' => $modelName . ' resource not available.',
+                        'statusCode' => 404,
+                        'status' => false,
+                    ],
+                    404,
+                );
+        }
+
+        return parent::render($request, $e);
     }
 }
